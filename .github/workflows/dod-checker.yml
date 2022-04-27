@@ -9,7 +9,7 @@ on:
 jobs:
   check-dod:
     if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.pull_request.merged == 'false')
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
