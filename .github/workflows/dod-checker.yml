@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
-      - name: Check DoDzzz
-        uses: platisd/DoD-checker@master
+      - name: Check DoDzzzzz
+        uses: platisd/DoD-checker@try_new_action
         with:
           dod_yaml: 'sample_dod.yaml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
