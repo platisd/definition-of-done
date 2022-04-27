@@ -1,0 +1,24 @@
+name: Definition of Done sample workflow
+
+on:
+  pull_request:
+    types: [opened]
+  issue_comment:
+    types: [edited]
+
+jobs:
+  check-dod:
+    if: |
+      github.event_name == 'pull_request' ||
+      (github.event_name == 'issue_comment' &&
+      github.event.issue.pull_request &&
+      github.event.issue.pull_request.merged_at == null)
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v3
+      - name: Check DoD
+        uses: platisd/DoD-checker@master
+        with:
+          dod_yaml: 'dod.yaml'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
