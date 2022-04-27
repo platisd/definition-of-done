@@ -18,7 +18,7 @@ def dod_criteria_to_message(dod_criteria):
 
 def get_bot_comment(comments):
     for comment in comments:
-        if comment['user']['login'] == 'github-actions[bot]' and COMMENT_HEADER in comment['body']:
+        if comment['user']['type'] == 'Bot' and COMMENT_HEADER in comment['body']:
             return comment['body']
     return ''
 
