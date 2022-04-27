@@ -8,7 +8,7 @@ on:
 
 jobs:
   check-dod:
-    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment')
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && github.event.pull_request.merged == false)
     runs-on: ubuntu-20.04
     steps:
       - name: Clone Repo
@@ -18,3 +18,12 @@ jobs:
         with:
           dod_yaml: 'sample_dod.yaml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
+  printJob:    
+    name: Print event
+    runs-on: ubuntu-latest
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: |
+        echo "$GITHUB_CONTEXT"
