@@ -1,0 +1,35 @@
+name: Definition of Done sample workflow
+
+on: issue_comment
+
+jobs:
+  check-dod:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v3
+      - name: Check DoD
+        uses: platisd/DoD-checker@master
+        with:
+          dod_yaml: 'sample_dod.yaml'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+  pr_commented:
+    # This job only runs for pull request comments
+    name: PR comment
+    if: ${{ github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on PR $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
+  issue_commented:
+    # This job only runs for issue comments
+    name: Issue comment
+    if: ${{ !github.event.issue.pull_request }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo A comment on issue $NUMBER
+        env:
+          NUMBER: ${{ github.event.issue.number }}
