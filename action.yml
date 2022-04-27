@@ -1,0 +1,15 @@
+name: 'Definition of Done checker'
+description: 'Check whether the Definition of Done (DoD) for the project has been satisfied'
+inputs:
+  github_token:
+    description: 'The GitHub token'
+    required: true
+  dod_yaml:
+    description: 'The relative path to the YAML file with your DoD'
+    required: true
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+branding:
+  icon: 'check'  
+  color: 'green'
