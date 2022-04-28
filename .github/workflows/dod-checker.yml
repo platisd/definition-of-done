@@ -1,5 +1,4 @@
-name: Definition of Done sample workflow
-
+name: Definition of Done
 on:
   pull_request:
     types: [opened]
@@ -8,11 +7,13 @@ on:
 
 jobs:
   check-dod:
+    # Enable this check only when creating a new pull request
+    # or when a comment of an open pull request gets edited
     if: |
       github.event_name == 'pull_request' ||
       (github.event_name == 'issue_comment' &&
       github.event.issue.pull_request &&
-      github.event.issue.pull_request.merged_at == null)
+      github.event.issue.state == 'open')
     runs-on: ubuntu-20.04
     steps:
       - name: Clone Repo
