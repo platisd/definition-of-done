@@ -1,4 +1,5 @@
 dod:
-  - Action manually tested and link to successful run provided 
-  - Python best practices followed
-  - Documentation updated
+  - 'Action manually tested and link to successful run provided'
+  - 'Python best practices followed'
+  - 'Python code is formatted with `black`'
+  - 'Documentation updated'
