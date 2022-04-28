@@ -6,7 +6,7 @@ import requests
 import argparse
 import yaml
 
-COMMENT_HEADER = "### :ballot_box_with_check: Definition of Done checker"
+COMMENT_HEADER = os.environ["INPUT_COMMENT_HEADER"]
 EMPTY_CHECKMARK = "- [ ]"
 
 

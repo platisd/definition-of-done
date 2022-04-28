@@ -7,6 +7,9 @@ inputs:
   dod_yaml:
     description: 'The relative path to the YAML file with your DoD'
     required: true
+  comment_header:
+    description: 'The header of the comment with the DoD checklist'
+    default: '### :ballot_box_with_check: Definition of Done checker'
 runs:
   using: 'docker'
   image: 'Dockerfile'
