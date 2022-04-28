@@ -1,5 +1,5 @@
-name: 'Definition of Done checker'
-description: 'Check whether the Definition of Done (DoD) for the project has been satisfied'
+name: 'Definition of Done (DoD) checker'
+description: 'Ensure the Definition of Done for the project has been satisfied'
 inputs:
   github_token:
     description: 'The GitHub token'
