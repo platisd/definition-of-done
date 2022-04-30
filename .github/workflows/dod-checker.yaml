@@ -19,7 +19,7 @@ jobs:
       - name: Clone Repo
         uses: actions/checkout@v3
       - name: Check DoD
-        uses: platisd/definition-of-done@master
+        uses: DIT113-V22/definition-of-done@master
         with:
           dod_yaml: 'dod.yaml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
