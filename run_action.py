@@ -5,6 +5,8 @@ import sys
 import requests
 import argparse
 import yaml
+import json
+import time
 
 COMMENT_HEADER = os.environ["INPUT_COMMENT_HEADER"]
 EMPTY_CHECKMARK = "- [ ]"
@@ -28,15 +30,18 @@ def has_unsatisfied_dod(bot_comment):
     return EMPTY_CHECKMARK in bot_comment
 
 
+def is_pull_request_comment_edit_event(github_event):
+    return (
+        github_event["action"] == "edited" and "pull_request" in github_event["issue"]
+    )
+
+
 def main():
     parser = argparse.ArgumentParser(description="Definition of Done checker")
     parser.add_argument(
         "--pull-request-id", type=str, required=True, help="The pull request id"
     )
     args = parser.parse_args()
-
-    print("GITHUB_EVENT_PATH")
-    print(os.system("cat /github/workflow/event.json"))
 
     github_workspace = os.environ["GITHUB_WORKSPACE"]
     dod_yaml = os.environ["INPUT_DOD_YAML"]
@@ -66,15 +71,15 @@ def main():
         pull_request_id,
     )
 
-    get_result = requests.get(comments_url)
-    if get_result.status_code != 200:
+    comments_get_result = requests.get(comments_url)
+    if comments_get_result.status_code != 200:
         print(
             "Getting pull request comments to GitHub failed with code: "
-            + str(get_result.status_code)
+            + str(comments_get_result.status_code)
         )
-        print(get_result.text)
+        print(comments_get_result.text)
 
-    bot_comment = get_bot_comment(get_result.json())
+    bot_comment = get_bot_comment(comments_get_result.json())
     if bot_comment:
         if has_unsatisfied_dod(bot_comment):
             print(
@@ -87,7 +92,65 @@ def main():
             return 1
         else:
             print("All DoD criteria are satisfied. 🎉")
-            return 0
+            # If this action was triggered by a comment edit, we need to trigger the workflow
+            # via a pull request edit event, so that its status can be used for approving the pull request
+            github_event = {}
+            with open(os.environ["GITHUB_EVENT_PATH"]) as f:
+                github_event = json.load(f)
+
+            if not github_event:
+                print("No GitHub event found")
+                return 1
+
+            if is_pull_request_comment_edit_event(github_event):
+                # Update the pull request body and then set it back to the original state
+                issue_url = "%s/repos/%s/issues/%s" % (
+                    github_api_url,
+                    repo,
+                    pull_request_id,
+                )
+                get_comment_body_result = requests.get(issue_url)
+                if get_comment_body_result.status_code != 200:
+                    print(
+                        "Getting pull request comment body from GitHub failed with code: "
+                        + str(get_comment_body_result.status_code)
+                    )
+                    print(get_comment_body_result.text)
+                    return 1
+                pull_request_original_body = get_comment_body_result.json()["body"]
+
+                # Update the pull request body
+                update_comment_body_result = requests.patch(
+                    issue_url,
+                    json={"body": pull_request_original_body + " ignore this "},
+                )
+                if update_comment_body_result.status_code != 200:
+                    print(
+                        "Updating pull request comment body failed with code: "
+                        + str(update_comment_body_result.status_code)
+                    )
+                    print(update_comment_body_result.text)
+                    return 1
+
+                # Set the pull request body back to the original state
+                time.sleep(5)  # Wait for the GitHub API to update the pull request
+                update_comment_body_result = requests.patch(
+                    issue_url,
+                    json={"body": pull_request_original_body},
+                )
+                if update_comment_body_result.status_code != 200:
+                    print(
+                        "Updating pull request comment body failed with code: "
+                        + str(update_comment_body_result.status_code)
+                    )
+                    print(update_comment_body_result.text)
+                    return 1
+
+                print("Updated pull request comment body")
+                return 0
+            else:
+                # If this is a pull request event we can succeed directly
+                return 0
     else:
         print(
             "The Definition of Done for this pull request "
