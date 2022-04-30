@@ -35,6 +35,9 @@ def main():
     )
     args = parser.parse_args()
 
+    print("GITHUB_EVENT_PATH")
+    print(os.system("cat /github/workflow/event.json"))
+
     github_workspace = os.environ["GITHUB_WORKSPACE"]
     dod_yaml = os.environ["INPUT_DOD_YAML"]
     dod_yaml_path = os.path.join(github_workspace, dod_yaml)
