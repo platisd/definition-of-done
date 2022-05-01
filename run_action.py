@@ -84,7 +84,7 @@ def main():
         print(get_pull_request_description_result.text)
         return 1
     pull_request_description = get_pull_request_description_result.json().get(
-        "body", default=""
+        "body", ""
     )
 
     if has_bot_comment(pull_request_description):
