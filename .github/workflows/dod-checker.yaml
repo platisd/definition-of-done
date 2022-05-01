@@ -1,7 +1,6 @@
 name: Definition of Done
 on:
   pull_request:
-    types: [opened, edited]
   issue_comment:
     types: [edited]
 
