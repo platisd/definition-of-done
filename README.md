@@ -32,7 +32,8 @@ Keep in mind that the Definition of Done is not the same as the acceptance crite
 and non-functional requirements for a *specific* task. In other words, the Definition of Done is set at a project
 level and remains stable, while the acceptance criteria are specified on a feature level and are different every time.
 
-If you do not care about the DoD semantics, you can use the action to *force* maintainers to manually go through a checklist before the pull request can be merged.
+If you do not care about the DoD semantics, you can use the action to *force* maintainers to manually go through a checklist
+before the pull request can be merged.
 
 ## How?
 
