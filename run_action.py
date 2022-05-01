@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+from email.policy import default
 import os
 import sys
 import requests
@@ -82,9 +83,11 @@ def main():
         )
         print(get_pull_request_description_result.text)
         return 1
-    pull_request_description = get_pull_request_description_result.json()["body"]
+    pull_request_description = get_pull_request_description_result.json().get(
+        "body", default=""
+    )
 
-    if pull_request_description and has_bot_comment(pull_request_description):
+    if has_bot_comment(pull_request_description):
         if has_unsatisfied_dod(pull_request_description, config["dod"]):
             print(
                 "The Definition of Done for this pull request "
