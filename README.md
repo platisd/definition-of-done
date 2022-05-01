@@ -9,7 +9,7 @@ by a maintainer.
 This allows projects to remind maintainers and contributors to _manually_ confirm they abide by several criteria,
 i.e. the "Definition of Done", for the pull request to be considered good to merge.
 
-## Why?
+## Why??
 
 In an ideal world, the usefulness, correctness and quality of pull requests would be automatically verified.
 In practice this does not or cannot happen and we need to manually ensure whether a pull request is in a merge-able
