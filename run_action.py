@@ -74,7 +74,7 @@ def main():
     )
 
     comments_get_result = requests.get(
-        comments_url, headers={"Authorization": "token %s" % github_token}
+        comments_url, headers={"authorization": "Bearer %s" % github_token}
     )
     if comments_get_result.status_code != 200:
         print(
@@ -114,7 +114,7 @@ def main():
                     pull_request_id,
                 )
                 get_comment_body_result = requests.get(
-                    issue_url, headers={"Authorization": "token %s" % github_token}
+                    issue_url, headers={"authorization": "Bearer %s" % github_token}
                 )
                 if get_comment_body_result.status_code != 200:
                     print(
@@ -129,7 +129,7 @@ def main():
                 # Update the pull request body and title
                 update_comment_body_result = requests.patch(
                     issue_url,
-                    headers={"Authorization": "token %s" % github_token},
+                    headers={"authorization": "Bearer %s" % github_token},
                     # Add a space to the original message which will be trimmed away by GitHub
                     json={
                         "title": pull_request_original_title + " wtf",
@@ -160,7 +160,7 @@ def main():
         message = dod_criteria_to_message(config["dod"])
         post_result = requests.post(
             comments_url,
-            headers={"Authorization": "token %s" % github_token},
+            headers={"authorization": "Bearer %s" % github_token},
             json={"body": message},
         )
         if post_result.status_code != 201:
