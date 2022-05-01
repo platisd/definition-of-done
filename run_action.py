@@ -123,8 +123,8 @@ def main():
         print(
             "The Definition of Done for this pull request "
             + "needs to fully marked as satisfied by a repository maintainer. "
-            + "Please make sure to check them off "
-            + "in the checklist that was appended to the pull request description."
+            + "Please make sure a maintainer marks off the checklist "
+            + "that was appended to the pull request description."
         )
         return 1
 
