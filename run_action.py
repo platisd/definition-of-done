@@ -6,24 +6,24 @@ import requests
 import argparse
 import yaml
 
-COMMENT_HEADER = os.environ["INPUT_COMMENT_HEADER"]
+MESSAGE_HEADER = os.environ["INPUT_MESSAGE_HEADER"]
 EMPTY_CHECKMARK = "- [ ]"
 
 
 def dod_criteria_to_message(dod_criteria):
-    message = COMMENT_HEADER + "\n"
+    message = MESSAGE_HEADER + "\n"
     for criterion in dod_criteria:
         message += EMPTY_CHECKMARK + " " + criterion + "\n"
     return message
 
 
 def has_bot_comment(pull_request_description):
-    return COMMENT_HEADER in pull_request_description
+    return MESSAGE_HEADER in pull_request_description
 
 
 def has_unsatisfied_dod(pull_request_description, dod_criteria):
     # Extract the bot message from the pull request description
-    bot_message_begin = pull_request_description.find(COMMENT_HEADER)
+    bot_message_begin = pull_request_description.find(MESSAGE_HEADER)
     last_criterion = dod_criteria[-1]
     bot_message_end = pull_request_description.find(last_criterion)
     if bot_message_end == -1:

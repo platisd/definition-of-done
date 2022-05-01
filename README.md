@@ -80,5 +80,5 @@ Important fields:
 with the syntax described earlier.
 * `github_token`: You must provide the GitHub token for the Action to be able to view and
 most importantly edit your pull request description.
-* (Optional) `comment_header`: You may provide a custom message to be displayed above the checklist instead of the
+* (Optional) `message_header`: You may provide a custom message to be displayed above the checklist instead of the
 default one found in [action.yml]().
