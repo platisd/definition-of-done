@@ -1,19 +1,10 @@
 name: Definition of Done
 on:
   pull_request:
-    types: [opened, reopened, edited]
-  issue_comment:
-    types: [edited]
+    types: [opened, edited]
 
 jobs:
   check-dod:
-    # Enable this check only when creating a new pull request
-    # or when a comment of an open pull request gets edited
-    if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-      github.event.issue.pull_request &&
-      github.event.issue.state == 'open')
     runs-on: ubuntu-20.04
     steps:
       - name: Clone Repo
@@ -22,13 +13,4 @@ jobs:
         uses: platisd/definition-of-done@master
         with:
           dod_yaml: 'dod.yaml'
-          pat_token: ${{ secrets.DOD_CHECKER }}
-  printJob:    
-    name: Print event
-    runs-on: ubuntu-latest
-    steps:
-    - name: Dump GitHub context
-      env:
-        GITHUB_CONTEXT: ${{ toJson(github) }}
-      run: |
-        echo "$GITHUB_CONTEXT"
+          github_token: ${{ secrets.GITHUB_TOKEN }}

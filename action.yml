@@ -1,8 +1,8 @@
 name: 'Definition of Done (DoD) checker'
 description: 'Ensure the Definition of Done for the project has been satisfied'
 inputs:
-  pat_token:
-    description: 'The PAT token'
+  github_token:
+    description: 'The GitHub token'
     required: true
   dod_yaml:
     description: 'The relative path to the YAML file with your DoD'
