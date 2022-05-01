@@ -65,7 +65,7 @@ def main():
     repo = os.environ.get("GITHUB_REPOSITORY")
     pull_request_id = args.pull_request_id
 
-    github_token = os.environ.get("INPUT_GITHUB_TOKEN")
+    github_token = os.environ.get("INPUT_PAT_TOKEN")
     github_api_url = os.environ.get("GITHUB_API_URL")
     comments_url = "%s/repos/%s/issues/%s/comments" % (
         github_api_url,
