@@ -17,15 +17,24 @@ def dod_criteria_to_message(dod_criteria):
     return message
 
 
-def get_bot_comment(comments):
-    for comment in comments:
-        if comment["user"]["type"] == "Bot" and COMMENT_HEADER in comment["body"]:
-            return comment["body"]
-    return ""
+def has_bot_comment(pull_request_description):
+    return COMMENT_HEADER in pull_request_description
 
 
-def has_unsatisfied_dod(bot_comment):
-    return EMPTY_CHECKMARK in bot_comment
+def has_unsatisfied_dod(pull_request_description, dod_criteria):
+    # Extract the bot message from the pull request description
+    bot_message_begin = pull_request_description.find(COMMENT_HEADER)
+    last_criterion = dod_criteria[-1]
+    bot_message_end = pull_request_description.find(last_criterion)
+    if bot_message_end == -1:
+        print(
+            "DoD criteria are missing. "
+            + "Please fully remove any remnants of the bot's comment and try again."
+        )
+        return True
+    bot_message = pull_request_description[bot_message_begin:bot_message_end]
+
+    return EMPTY_CHECKMARK in bot_message
 
 
 def main():
@@ -54,26 +63,31 @@ def main():
 
     repo = os.environ.get("GITHUB_REPOSITORY")
     pull_request_id = args.pull_request_id
-
     github_token = os.environ.get("INPUT_GITHUB_TOKEN")
     github_api_url = os.environ.get("GITHUB_API_URL")
-    comments_url = "%s/repos/%s/issues/%s/comments" % (
+    authorization_header = {"authorization": "Bearer %s" % github_token}
+
+    issue_url = "%s/repos/%s/issues/%s" % (
         github_api_url,
         repo,
         pull_request_id,
     )
-
-    get_result = requests.get(comments_url)
-    if get_result.status_code != 200:
+    get_pull_request_description_result = requests.get(
+        issue_url, headers=authorization_header
+    )
+    if get_pull_request_description_result.status_code != 200:
         print(
-            "Getting pull request comments to GitHub failed with code: "
-            + str(get_result.status_code)
+            "Getting pull request description from GitHub failed with code: "
+            + str(get_pull_request_description_result.status_code)
         )
-        print(get_result.text)
+        print(get_pull_request_description_result.text)
+        return 1
+    pull_request_description = get_pull_request_description_result.json()["body"]
+    if not pull_request_description:
+        pull_request_description = ""
 
-    bot_comment = get_bot_comment(get_result.json())
-    if bot_comment:
-        if has_unsatisfied_dod(bot_comment):
+    if has_bot_comment(pull_request_description):
+        if has_unsatisfied_dod(pull_request_description, config["dod"]):
             print(
                 "The Definition of Done for this pull request "
                 + "has not been yet been fully marked as satisfied "
@@ -86,25 +100,32 @@ def main():
             print("All DoD criteria are satisfied. 🎉")
             return 0
     else:
+        bot_message = dod_criteria_to_message(config["dod"])
+        space_between_message_and_description = (
+            "\n\n" if pull_request_description else ""
+        )
+        update_pull_request_description_result = requests.patch(
+            issue_url,
+            headers=authorization_header,
+            json={
+                "body": pull_request_description
+                + space_between_message_and_description
+                + bot_message,
+            },
+        )
+        if update_pull_request_description_result.status_code != 200:
+            print(
+                "Updating pull request comment body failed with code: "
+                + str(update_pull_request_description_result.status_code)
+            )
+            return 1
+
         print(
             "The Definition of Done for this pull request "
-            + "has not been yet been fully marked as satisfied "
-            + "by a repository maintainer. "
-            + "Please make sure to check them off "
-            + "in the pull request comment that was just posted."
+            + "needs to fully marked as satisfied by a repository maintainer. "
+            + "Please make sure a maintainer marks off the checklist "
+            + "that was appended to the pull request description."
         )
-        message = dod_criteria_to_message(config["dod"])
-        post_result = requests.post(
-            comments_url,
-            json={"body": message},
-            headers={"Authorization": "token %s" % github_token},
-        )
-        if post_result.status_code != 201:
-            print(
-                "Posting comment to GitHub failed with code: "
-                + str(post_result.status_code)
-            )
-            print(post_result.text)
         return 1
 
 
