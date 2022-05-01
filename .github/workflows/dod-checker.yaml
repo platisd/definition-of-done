@@ -22,7 +22,7 @@ jobs:
         uses: platisd/definition-of-done@master
         with:
           dod_yaml: 'dod.yaml'
-          github_token: ${{ secrets.DOD_CHECKER }}
+          pat_token: ${{ secrets.DOD_CHECKER }}
   printJob:    
     name: Print event
     runs-on: ubuntu-latest
