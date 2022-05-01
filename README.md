@@ -3,9 +3,9 @@ A bot to make you confirm your Definition of Done (DoD) has been satisfied befor
 
 ## What?
 
-`platisd/definition-of-done` is a GitHub Action that adds a checklist that needs to be ticked off
-to your pull requests.<br>
-The GitHub Action returns a success code only if all of the items in the checklist have been marked by a maintainer.
+`platisd/definition-of-done` adds a checklist to your pull request's description, which needs to be ticked off.<br>
+The GitHub Action returns a success code only if all of the items in the checklist have been *marked* as done
+by a maintainer.
 This allows projects to remind maintainers and contributors to _manually_ confirm they abide by several criteria,
 i.e. the "Definition of Done", for the pull request to be considered good to merge.
 
@@ -36,8 +36,9 @@ If you do not care about the DoD semantics, you can use the action to *force* ma
 
 ## How?
 
-The GitHub Action posts a comment with the DoD checklist when a pull request is opened and then every time
-a comment in the pull request is edited, it checks if _all_ of the checklist items have been marked.
+The GitHub Action appends the DoD checklist to the pull request description when a pull request is opened.
+Then every time an item in the checklist is edited, or to be exact the pull request description is edited,
+it checks whether _all_ of the checklist items have been marked.
 The GitHub Action will keep *failing* until all criteria have been checked as satisfied.<br>
 
 The checklist needs to be provided by the Action's user as a `yaml` file with the following syntax,
@@ -57,19 +58,10 @@ Then you need to create a workflow similar to the one below (also found in
 name: Definition of Done
 on:
   pull_request:
-    types: [opened]
-  issue_comment:
-    types: [edited]
+    types: [opened, edited]
 
 jobs:
   check-dod:
-    # Enable this check only when creating a new pull request
-    # or when a comment of an open pull request gets edited
-    if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-      github.event.issue.pull_request &&
-      github.event.issue.state == 'open')
     runs-on: ubuntu-20.04
     steps:
       - name: Clone Repo
@@ -82,12 +74,11 @@ jobs:
 ```
 
 Important fields:
-* `on`: You should launch this action when there is a new pull request opened and when there's a comment edit
+* `on`: You should launch this action when there is a new pull request opened or edited
 (marking a checklist counts as an edit).
-* `if`: You should disable the execution of the job unless the appropriate conditions are present. This will
- skip running the Action needlessly and posting comments on issues instead of pull requests.
 * `dod_yaml`: You must specify the relative path to the `yaml` with the checklist you would like to be posted
 with the syntax described earlier.
-* `github_token`: You must provide the GitHub token for the Action to be able to post comments in your pull request.
+* `github_token`: You must provide the GitHub token for the Action to be able to view and
+most importantly edit your pull request description.
 * (Optional) `comment_header`: You may provide a custom message to be displayed above the checklist instead of the
 default one found in [action.yml]().
