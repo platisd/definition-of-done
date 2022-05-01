@@ -101,11 +101,16 @@ def main():
             return 0
     else:
         bot_message = dod_criteria_to_message(config["dod"])
+        space_between_message_and_description = (
+            "\n\n" if pull_request_description else ""
+        )
         update_pull_request_description_result = requests.patch(
             issue_url,
             headers=authorization_header,
             json={
-                "body": pull_request_description + "\n\n" + bot_message,
+                "body": pull_request_description
+                + space_between_message_and_description
+                + bot_message,
             },
         )
         if update_pull_request_description_result.status_code != 200:
