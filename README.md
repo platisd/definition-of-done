@@ -51,7 +51,25 @@ dod:
   - 'Checklist item 3'
 ```
 
-Then you need to create a workflow similar to the one below (also found in
+To create indented (sub)items in the checklist, add the appropriate number of "➡️" characters,
+as shown below.
+
+```yaml
+dod:
+  - 'Checklist item 1'
+  - '➡️Checklist item 2'
+  - '➡️➡️Checklist item 3'
+  - 'Checklist item 4'
+```
+
+The example above, will be published as:
+
+> - [ ] Checklist item 1
+>   - [ ] Checklist item 2
+>     - [ ] Checklist item 3
+>  - [ ] Checklist item 4
+
+Finally, you need to create a workflow similar to the one below (also found in
 [.github/workflows/dod-checker.yml](.github/workflows/dod-checker.yaml)):
 
 ```yaml

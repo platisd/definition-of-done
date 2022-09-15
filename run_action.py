@@ -8,12 +8,16 @@ import yaml
 
 MESSAGE_HEADER = os.environ["INPUT_MESSAGE_HEADER"]
 EMPTY_CHECKMARK = "- [ ]"
+RIGHT_ARROW_EMOJI = "➡️"
 
 
 def dod_criteria_to_message(dod_criteria):
     message = MESSAGE_HEADER + "\n"
     for criterion in dod_criteria:
-        message += EMPTY_CHECKMARK + " " + criterion + "\n"
+        indentation_depth = criterion.count(RIGHT_ARROW_EMOJI)
+        indentation = 2 * " " * indentation_depth
+        criterion = criterion.replace(RIGHT_ARROW_EMOJI, "")
+        message += indentation + EMPTY_CHECKMARK + " " + criterion + "\n"
     return message
 
 

@@ -1,4 +1,6 @@
 dod:
   - 'Action manually tested and link to successful run provided'
   - 'Python best practices followed'
+  - '➡️Consistent naming conventions'
+  - '➡️➡️pep8 check passing'
   - 'Documentation updated'
