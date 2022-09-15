@@ -1,6 +1,8 @@
 # Definition of Done - Checklist for your pull requests
 A bot to make you confirm your Definition of Done (DoD) has been satisfied before a pull request can be merged.
 
+![dod-demo](https://i.imgur.com/EVx32jz.png)
+
 ## What?
 
 `platisd/definition-of-done` adds a checklist to your pull request's description, which needs to be ticked off.<br>
