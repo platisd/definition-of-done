@@ -28,7 +28,7 @@ def has_bot_comment(pull_request_description):
 def has_unsatisfied_dod(pull_request_description, dod_criteria):
     # Extract the bot message from the pull request description
     bot_message_begin = pull_request_description.find(MESSAGE_HEADER)
-    last_criterion = dod_criteria[-1]
+    last_criterion = dod_criteria[-1].replace(RIGHT_ARROW_EMOJI, "")
     bot_message_end = pull_request_description.find(last_criterion)
     if bot_message_end == -1:
         print(
