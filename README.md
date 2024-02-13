@@ -102,3 +102,24 @@ with the syntax described earlier.
 most importantly edit your pull request description.
 * (Optional) `message_header`: You may provide a custom message to be displayed above the checklist instead of the
 default one found in [action.yml](action.yml).
+
+### Using multiple DoD checklists
+
+After popular demand, the action now supports using multiple/alternative DoD checklists. This is useful when you have different
+DoD criteria for different types of pull requests, e.g. bug fixes, new features, etc.
+
+To use multiple DoD checklists, you should include a Markdown-formatted YAML block **at the end** of your pull request, e.g.:
+
+`````
+This is the pull request description. You can write whatever here and the DoD checklist will be appended at the end.
+Right below this line, you should include a YAML block with the following syntax:
+
+```yaml
+dod_yaml: "relative/path/to/alternative-dod.yaml"
+```
+`````
+
+Please note that the Action will _not_ replace the YAML block which specifies the alternative DoD.
+Additionally, the YAML block should remain in your pull request description,
+either at the end or right before the DoD checklist.
+In other words, add the YAML block at the end of the pull request description and let the action do the rest.

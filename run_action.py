@@ -5,6 +5,9 @@ import sys
 import requests
 import argparse
 import yaml
+import re
+
+from pathlib import Path
 
 MESSAGE_HEADER = os.environ["INPUT_MESSAGE_HEADER"]
 EMPTY_CHECKMARK = "- [ ]"
@@ -23,6 +26,70 @@ def dod_criteria_to_message(dod_criteria):
 
 def has_bot_comment(pull_request_description):
     return MESSAGE_HEADER in pull_request_description
+
+
+def maybe_replace_config(config: dict, pull_request_description: str):
+    """
+    Replace the default DoD with an alternative one if specified
+    in the pull request description with a YAML block at the end.
+    """
+    if has_bot_comment(pull_request_description):
+        pull_request_description = pull_request_description.split(MESSAGE_HEADER)[0]
+    pr_description = pull_request_description.rstrip()
+    if not pr_description.endswith("```"):
+        return False
+
+    yaml_block_pattern = r"```yaml(.*?)```"
+    yaml_block = re.search(yaml_block_pattern, pr_description, re.DOTALL)
+    if yaml_block is None:
+        return False
+
+    if pr_description.endswith(yaml_block.group(0)):
+        try:
+            yaml_block_contents = yaml.safe_load(yaml_block.group(1))
+            if "dod_yaml" in yaml_block_contents:
+                print("Alternative DoD YAML file specified")
+                alternative_dod_yaml_path = Path(os.environ["GITHUB_WORKSPACE"]) / Path(
+                    yaml_block_contents["dod_yaml"]
+                )
+                if alternative_dod_yaml_path.exists():
+                    with open(alternative_dod_yaml_path, "r") as stream:
+                        try:
+                            alternative_config = yaml.safe_load(stream)
+                            assert_config(alternative_config)
+                            # Replace the original config with the alternative one
+                            print(
+                                "Replacing the original config with the alternative one"
+                            )
+                            config.clear()
+                            config.update(alternative_config)
+                        except yaml.YAMLError as yaml_exception:
+                            print("Invalid YAML block")
+                            print(yaml_exception)
+                            return False
+                else:
+                    print(
+                        "Alternative DoD YAML file does not exist in specified path: "
+                        + str(alternative_dod_yaml_path)
+                    )
+                    return False
+            else:
+                return False
+
+        except yaml.YAMLError as yaml_exception:
+            print("Invalid YAML block")
+            print(yaml_exception)
+            return False
+    else:
+        print("YAML block found but not at the end of the pull request description")
+        return False
+
+    return True
+
+
+def assert_config(config: dict):
+    assert "dod" in config, "No DoD section in config"
+    assert isinstance(config["dod"], list), "DoD section is not a list"
 
 
 def has_unsatisfied_dod(pull_request_description, dod_criteria):
@@ -61,9 +128,7 @@ def main():
             print(yaml_exception)
             return 1
 
-    if "dod" not in config:
-        print("No DoD section in config")
-        return 1
+    assert_config(config)
 
     repo = os.environ.get("GITHUB_REPOSITORY")
     pull_request_id = args.pull_request_id
@@ -90,6 +155,7 @@ def main():
     if not pull_request_description:
         pull_request_description = ""
 
+    maybe_replace_config(config, pull_request_description)
     if has_bot_comment(pull_request_description):
         if has_unsatisfied_dod(pull_request_description, config["dod"]):
             print(
@@ -126,7 +192,7 @@ def main():
 
         print(
             "The Definition of Done for this pull request "
-            + "needs to fully marked as satisfied by a repository maintainer. "
+            + "needs to be fully marked as satisfied by a repository maintainer. "
             + "Please make sure a maintainer marks off the checklist "
             + "that was appended to the pull request description."
         )
