@@ -102,6 +102,10 @@ with the syntax described earlier.
 most importantly edit your pull request description.
 * (Optional) `message_header`: You may provide a custom message to be displayed above the checklist instead of the
 default one found in [action.yml](action.yml).
+* (Optional) `optional_tag`: A tag that if found in a DoD checklist item in its beginning or end, will denote that
+  the specific item is optional. The tag will **not** be removed from the item, but it will be ignored when checking
+  if the DoD is satisfied.
+  * Example: `optional_tag: "[OPTIONAL]"` will make the action ignore items like `"[OPTIONAL] Checklist item 1"`.
 
 ### Using multiple DoD checklists
 
