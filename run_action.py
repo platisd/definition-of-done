@@ -92,7 +92,7 @@ def assert_config(config: dict):
     assert isinstance(config["dod"], list), "DoD section is not a list"
 
 
-def has_unsatisfied_dod(pull_request_description, dod_criteria):
+def has_unsatisfied_dod(pull_request_description, dod_criteria, optional_tag):
     # Extract the bot message from the pull request description
     bot_message_begin = pull_request_description.find(MESSAGE_HEADER)
     last_criterion = dod_criteria[-1].replace(RIGHT_ARROW_EMOJI, "")
@@ -103,9 +103,33 @@ def has_unsatisfied_dod(pull_request_description, dod_criteria):
             + "Please fully remove any remnants of the bot's comment and try again."
         )
         return True
-    bot_message = pull_request_description[bot_message_begin:bot_message_end]
+    bot_message = pull_request_description[
+        bot_message_begin : bot_message_end + len(last_criterion)
+    ]
 
-    return EMPTY_CHECKMARK in bot_message
+    # If all boxes are checked, then the DoD is satisfied
+    if EMPTY_CHECKMARK not in bot_message:
+        print("All DoD criteria are satisfied, no unchecked boxes")
+        return False
+    # If there are unchecked boxes and no optional tags, then the DoD is unsatisfied
+    if not optional_tag:
+        print("There are unchecked DoD criteria and no optional tags")
+        return True
+
+    print("There are unchecked DoD criteria but they might be optional")
+    # If there are optional tags, then only unchecked boxes WITHOUT the optional tag
+    # are unsatisfied criteria
+    for line in bot_message.split("\n"):
+        line = line.strip()
+        if line.startswith(EMPTY_CHECKMARK):
+            criterion = line[len(EMPTY_CHECKMARK) :].strip()
+            if criterion.startswith(optional_tag) or criterion.endswith(optional_tag):
+                continue  # Ignore the optional unchecked criterion
+            print("Found unchecked DoD criteria that are not optional")
+            return True  # Found an unsatisfied non-optional criterion
+
+    print("Found unchecked DoD criteria, but all of them were optional")
+    return False
 
 
 def main():
@@ -157,7 +181,8 @@ def main():
 
     maybe_replace_config(config, pull_request_description)
     if has_bot_comment(pull_request_description):
-        if has_unsatisfied_dod(pull_request_description, config["dod"]):
+        optional_tag = os.environ.get("INPUT_OPTIONAL_TAG")
+        if has_unsatisfied_dod(pull_request_description, config["dod"], optional_tag):
             print(
                 "The Definition of Done for this pull request "
                 + "has not been yet been fully marked as satisfied "

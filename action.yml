@@ -10,6 +10,9 @@ inputs:
   message_header:
     description: 'The header of the message with the DoD checklist'
     default: '### :ballot_box_with_check: Definition of Done checklist'
+  optional_tag:
+    description: 'The tag to use for optional items in the beginning or the end of a criterion'
+    default: ''
 runs:
   using: 'docker'
   image: 'Dockerfile'
